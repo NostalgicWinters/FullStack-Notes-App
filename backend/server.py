@@ -52,10 +52,17 @@ def add_note():
 
     return jsonify({"success": True, "new_note": {"id": note_id, "heading": heading, "para": para}})
 
-@app.route("/newPage")
-def newPage():
-    return "<div>New Page</div>"
+@app.route("/notes/search", methods=["POST"])
+def search_note():
+    arr = []
+    data = request.get_json()
+    value = data.get("value")
 
-
+    projectdb.mycursor.execute("USE NOTESAPP")
+    projectdb.mycursor.execute("SELECT * FROM NOTES WHERE HEADING=%s",(value,))
+    for id,heading,para in projectdb.mycursor:
+        arr.append({"id":id,"heading": heading, "para": para})
+    return jsonify({"notes": arr})
+        
 if __name__ == "__main__":
     app.run(debug=True)

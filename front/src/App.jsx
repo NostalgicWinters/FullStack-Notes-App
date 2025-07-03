@@ -9,6 +9,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [pressed, setPressed] = useState(false)
+  const [value, setValue] = useState("")
 
   useEffect(() => {
   fetch("http://localhost:5000/notes/api")
@@ -49,6 +50,24 @@ function App() {
 
   const onCancel = () => setPressed(false)
 
+  const handleSearch = async (value) => {
+    try{
+      const response = await fetch("http://localhost:5000/notes/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({value})
+      });
+      const result = await response.json();
+      if(result.notes){
+        setData(result.notes);
+      }
+    } catch(err){
+      console.error("Search error:", err)
+    }
+  }
+
   const handleDelete = async (id) => {
   try {
     await fetch("http://localhost:5000/notes/delete", {
@@ -70,8 +89,8 @@ function App() {
         <h1 className="text-purple-900 font-bold text-5xl">My Notes</h1>
       </div>
       <div className="flex justify-center mx-[16px]">
-        <input className="p-[8px] bg-[#FAF9F6] rounded-xl w-[64rem]" placeholder="Search notes..."></input>
-        <button className="bg-purple-700 text-white p-[16px] rounded-xl ml-[8px]"><img src="icons8-search.svg" className="h-[20px] w-[20px] mx-[8px] inline" />Search</button>
+        <input value={value} onChange={(e)=>setValue(e.target.value)} className="p-[8px] bg-[#FAF9F6] rounded-xl w-[64rem]" placeholder="Search notes..."></input>
+        <button onClick={()=>handleSearch(value)} className="bg-purple-700 text-white p-[16px] rounded-xl ml-[8px]"><img src="icons8-search.svg" className="h-[20px] w-[20px] mx-[8px] inline" />Search</button>
       </div>
       <div className="flex flex-wrap justify-center gap-2 p-8">
         {loading?(
